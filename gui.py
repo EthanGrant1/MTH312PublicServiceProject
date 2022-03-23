@@ -1,18 +1,54 @@
+# Gamer moment
 import pygame as p
+
+# System level module for program args, i/o, exits, etc
 import sys as s
+
+# Helper function library that contains objects to render
+from HelperFunctions import textbox as tb
+
+# For tracking how long it takes to brute force the password
 from time import time as t
+
+# Local variables in pygame for event handling
 from pygame.locals import *
 
 #### Stuff for password checking ####
-def check_pass(password: str) -> dict:
 
+######################################
+# check_pass(password) 
+# 
+# Checks a password string to see if
+# if fulfills certain requirements.
+# Will also attempt to brute force
+# crack the password.
+#
+# password: str is our password to
+# check
+#
+# Returns a dictionary of values
+######################################
+def check_pass(password: str) -> dict:
+	
+	# Initialize a dictionary
 	my_dict = {
-		'total': None,
+		# Time that it took to crack the password
+		'totalTime': None,
+
+		# Password has uppercase letters
 		'hasUp': None,
+
+		# Password has lowercase letters
 		'hasLow': None,
+
+		# Password contains one or more numbers
 		'hasNum': None,
+
+		# Password contains one or more symbols
 		'hasSym': None,
-		'numBools': None
+
+		# The 'strength' score of your password
+		'strength': None
 	}
 
 	# Strings of possible characters
@@ -39,10 +75,9 @@ def check_pass(password: str) -> dict:
 
 	# Attempt to crack it
 	while cracked != password:
-
 		for i in range(len(password)):
 
-			# Iterate over all of the characters
+			# Iterate over all possible characters
 			for j in range(len(all_chars)):
 
 				# If the character is found 
@@ -54,34 +89,41 @@ def check_pass(password: str) -> dict:
 	
 	# Total time that it took to crack the password
 	total = end - start
-	my_dict['total'] = total
+	my_dict['totalTime'] = total
 
-	numBools = 0
+	strength = 0
 	# Check the strength of the password
 	for i in range(len(cracked)):
-
+		
+		# Check if the password contains uppercase letters
 		if cracked[i] in upper and not hasUp:
 			hasUp = True
-			numBools+= 1
+			strength += 1
 
+		# Check if the password contains lowercase letters
 		elif cracked[i] in lower and not hasLow:
 			hasLow = True
-			numBools += 1
+			strength += 1
 
+		# Check if the password contains any numbers
 		elif cracked[i] in numbers and not hasNum:
 			hasNum = True
-			numBools += 1
+			strength += 1
 
+		# Check if the password contains any symbols
 		elif cracked[i] in symbols and not hasSym:
 			hasSym = True
-			numBools += 1
+			strength += 1
+	
+	# Assign a strength value based on length and amount of variance
+	strength = strength * len(password)
 
 	# Assign values to the dictionary
 	my_dict['hasUp'] = hasUp
 	my_dict['hasLow'] = hasLow
 	my_dict['hasNum'] = hasNum
 	my_dict['hasSym'] = hasSym
-	my_dict['numBools'] = numBools
+	my_dict['strength'] = strength
 
 	return my_dict
 
@@ -94,7 +136,7 @@ def main():
 	# Get user's screen size
 	disInfo = p.display.Info()
 
-	# Set the screen size and the caption
+	# Set the screen size and the window caption
 	max_w = disInfo.current_w - 50
 	max_h = disInfo.current_h - 50
 	screen = p.display.set_mode((max_w, max_h))
@@ -113,47 +155,40 @@ def main():
 	font = p.font.Font(None, txt_size)
 
 	# Font for unicode symbols
-	unifont = p.font.Font('seguisym.ttf', int(txt_size / 2))
+	unifont = 'seguisym.ttf'
 	
+	# Box position variables
 	box_x = int((max_w - 260) / 2)
 	box_y = int(max_h / 2) - 50
 
-	# Our inbut box
-	box = p.Rect (
-		# Horizontal position
-		box_x,
-		# Vertical position
-		box_y, 
-		# Width
-		150, 
-		# Height
-		txt_size
-	)
-
 	# Colors for if the box is clicked on or not
-	inactive_color = p.Color('darkslategray3')
-	active_color = p.Color('darkslategray1')
+	inactive_color = 'darkslategray3'
+	active_color = 'darkslategray1'
 
 	# Change the color of the box
 	current_color = inactive_color
 
-	# If the box currently active?
+	# Is the box currently active?
 	active = False
 
 	# The text that will go into the box
 	default_txt = 'Check your password here...'
-	text = ''
-	clear = ''
-	txt_len = len(text)
+
+	
+	# Our input box
+	box = tb(p.Rect(box_x, box_y, 300, txt_size), 3, current_color, default_txt, unifont, 16, current_color)
+
+	# Length of text contained inside of the box
+	txt_len = len(box.getText())
 
 	# Button variables
 	# ----------------------------
 
 	# Pressable button
 	button = p.Rect (
-		box_x + 50, 
-		box_y + 50, 
-		150, 
+		int(box_x + (box_x/8)), 
+		int(box_y + (box_y/8)), 
+		145, 
 		txt_size
 	)
 
@@ -173,7 +208,7 @@ def main():
 	# Debug text that includes the password check variables
 	debug = ''
 
-	# Text that is given to the user
+	# Text that is given to the user upon checking their password
 	feedback = ''
 
 
@@ -192,15 +227,23 @@ def main():
 			if e.type == p.MOUSEBUTTONDOWN:
 				
 				# If the click event occurred within the text box
-				if box.collidepoint(e.pos):
+				if box.getBox().collidepoint(e.pos):
+					# The box is now active and ready for input
 					active = True
-					default_txt = ''
 
+					# Clear out the old text
+					box.setText('')
+					txt_len = 0
+					clear = ''
+				
+				# Otherwise the box should be inactive
 				else:
+					# Will no longer accept input
 					active = False
-
+					
+					# Set the box text back to the default
 					if txt_len == 0:
-						default_txt = 'Check your password here...'
+						box.setText(default_txt)
 
 				# Change the color of the box
 				current_color = active_color if active else inactive_color
@@ -211,12 +254,10 @@ def main():
 					# Check the pasword
 					pass_dict = check_pass(clear)
 
-					# Debug text
-					debug = 'Debug:\nTotal Time: ' + str(pass_dict['total']) + '\nhasUp: ' + str(pass_dict['hasUp']) + '\nhasLow: ' + str(pass_dict['hasLow']) + '\nhasNum: ' + str(pass_dict['hasNum'])  + '\nhasSym: '  + str(pass_dict['hasSym']) + '\nStrength: ' + str(pass_dict['numBools'])
-
 					# Clear out the text
-					text = clear = ''
-
+					box.setText('')
+					txt_len = 0
+					clear = ''
 
 			# Keyboard event
 			if e.type == p.KEYDOWN:
@@ -226,69 +267,102 @@ def main():
 					# If the user presses Enter
 					if e.key == p.K_RETURN:
 						# Reset the text to the default
-						default_txt = 'Check your password here...'
+						box.setText(default_txt)
 
 						# Check the password
 						pass_dict = check_pass(clear)
 					
-						# Debug text		
-						debug = 'Debug:\nTotal Time: ' + str(pass_dict['total']) + '\nhasUp: ' + str(pass_dict['hasUp']) + '\nhasLow: ' + str(pass_dict['hasLow']) + '\nhasNum: ' + str(pass_dict['hasNum'])  + '\nhasSym: '  + str(pass_dict['hasSym']) + '\nStrength: ' + str(pass_dict['numBools'])	
-
 						# Clear out the text
-						text = clear = ''
+						box.setText('')
+						txt_len = 0
+						clear = ''
 
 					# If the user presses Backspace
 					elif e.key == p.K_BACKSPACE:
 
 						# Check if the text to be rendered is within the bounds of the box
-						if ((txt_size / 2) * txt_len) <= box.w:
+						if ((txt_size / 2) * txt_len) <= box.getBox().w:
 							# Delete a character of text
-							text = text[:-1]
+							box.setText(box.getText()[:-1])
 							clear = clear[:-1]
 						
 						# Decrease the length
 						txt_len -= 1
-
+						
+						# Ensure that length stays within correct bounds
 						if txt_len < 0:
 							txt_len = 0
-
-					else:
-						# If the text to be rendered is outside of the bounds of the box
-						if ((txt_size / 2) * txt_len + 1) < box.w:
+					
+					# Check if the unicode is a function key or not
+					# (Shift, Tab, etc. will result in '' when checking the unicode)
+					elif e.unicode != '':
+						# If the text to be rendered is inside of the bounds of the box
+						if (box.getFontSize() * (txt_len + 1)) < box.getBox().w:
 							# Append a password character to the text
-							text += '⬤'
-
+							box.setText(box.getText() + '⬤')
+						
+						# Append the unicode character to our cleartext
 						clear += e.unicode
+
+						# Increase the length
 						txt_len += 1
 		
 		# Color the screen
 		screen.fill((30, 30, 30))
 
-		# Change the width of the box if necessary
-		width = 300
-		box.w = width
-
 		# Draw the elements
-		p.draw.rect(screen, current_color, box, 2)
+		box.drawBox(screen)
 		p.draw.rect(screen, button_color, button, 0)
 
 		# Render the text as a surface
-		txt_surf = unifont.render(text, True, current_color)
-		txt_surf2 = font.render(default_txt, True, current_color)
-		txt_surf3 = font.render(button_text, True, btn_txt_color)
-		txt_surf4 = font.render(debug, True, p.Color('white'))
+		txt_surf1 = box.createRender()
+		txt_surf2 = font.render(button_text, True, btn_txt_color)
 		
-		# Blit the text
-		screen.blit(txt_surf, (box.x + 5, box.y + 5))
-		screen.blit(txt_surf2, (box.x + 5, box.y + 5))
-		screen.blit(txt_surf3, (button.x + 20, button.y + 5))
-		screen.blit(txt_surf4, (20, 20))
+		#### DEBUG DICTIONARY PRINTING ####
+
+		# Position variables
+		temp_x = 20
+		temp_y = 20
+
+		# Debug text
+		debug = 'Debug:'
+
+		# Render as surface
+		temp_surf = font.render(debug, True, p.Color('white'))
+
+		# Blit text to the screen
+		screen.blit(temp_surf, (temp_x, temp_y))
+		
+		# Check the password check dictionary
+		for key in pass_dict:
+			# Render each key in a new line
+			temp_y += txt_size + 5
+
+			# Grab the value from the dictionary
+			debug = f'{key}: {pass_dict[key]}'
+
+			# Render as surface
+			temp_surf = font.render(debug, True, p.Color('white'))
+
+			# Blit text to screen
+			screen.blit(temp_surf, (temp_x, temp_y))
+		
+		# Blit text to screen
+		box.blit(screen, txt_surf1)
+		screen.blit(txt_surf2, (int(button.x + (button.w / 4)), button.y + 5))
 
 		# Update the screen
 		p.display.flip()
+
+		# Ensure the clock is in line with 60 frames per second
 		clock.tick(60)
 
 if __name__ == "__main__":
+	# Initialize pygame for our system
 	p.init()
+
+	# Run the main
 	main()
+
+	# If we exit the main loop, quit the program
 	p.quit()
