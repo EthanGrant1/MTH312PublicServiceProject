@@ -13,7 +13,7 @@ class textbox:
 	
 	# Constructor
 	def __init__(self, box=p.Rect(0, 0, 0, 0), lineWeight=0, boxColor=p.Color('white'), text='Placeholder', 
-		     font=p.font.Font(None, 32), fontSize=32, fontColor=p.Color('white')):
+		     font=None, fontSize=32, fontColor=p.Color('white')):
 		
 		# Box is a pygame.Rect() object. It has a color and a lineweight.
 		self.box = box
@@ -24,7 +24,12 @@ class textbox:
 		# and a font color.
 		self.text = text
 		self.fontSize = fontSize
-		self.font = p.font.Font(str(font), self.fontSize)
+		
+		if font is not None:
+			self.font = p.font.Font(str(font), self.fontSize)
+		else:
+			self.font = p.font.Font(None, self.fontSize)
+
 		self.fontColor = p.Color(str(fontColor))
 	
 	######## Getters ########
@@ -88,11 +93,3 @@ class textbox:
 	# that it fits snugly in the box.
 	def blit(self, screen, render):
 		screen.blit(render, (self.box.x + 5, self.box.y + 5))
-
-class button:
-	# TODO: Make a class for the button so that we can have cleaner code in the main gui
-	
-	def __init__(self):
-		pass
-
-

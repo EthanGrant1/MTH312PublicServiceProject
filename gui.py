@@ -151,9 +151,6 @@ def main():
 	# A default text size
 	txt_size = 32
 
-	# Default font
-	font = p.font.Font(None, txt_size)
-
 	# Font for unicode symbols
 	unifont = 'seguisym.ttf'
 	
@@ -184,21 +181,9 @@ def main():
 	# Button variables
 	# ----------------------------
 
-	# Pressable button
-	button = p.Rect (
-		int(box_x + (box_x/8)), 
-		int(box_y + (box_y/8)), 
-		145, 
-		txt_size
-	)
+	# Buttons are simply filled textboxes with static variables
+	button = tb(p.Rect(int(box_x + (box_x/8)), int(box_y + (box_y/8)), 145, txt_size), 0, 'white', 'Enter', None, 32, 'black')
 
-	# The color of the button
-	button_color = p.Color('white')
-
-	# Text that goes on the button
-	button_text = 'Enter'
-	btn_txt_color = p.Color('black')
-	
 	# Password checking variables
 	# -----------------------------
 	
@@ -249,7 +234,7 @@ def main():
 				current_color = active_color if active else inactive_color
 				
 				# If the click event occured within the button
-				if button.collidepoint(e.pos):
+				if button.getBox().collidepoint(e.pos):
 	
 					# Check the pasword
 					pass_dict = check_pass(clear)
@@ -312,11 +297,11 @@ def main():
 
 		# Draw the elements
 		box.drawBox(screen)
-		p.draw.rect(screen, button_color, button, 0)
+		button.drawBox(screen)
 
 		# Render the text as a surface
 		txt_surf1 = box.createRender()
-		txt_surf2 = font.render(button_text, True, btn_txt_color)
+		txt_surf2 = button.createRender()
 		
 		#### DEBUG DICTIONARY PRINTING ####
 
@@ -328,7 +313,7 @@ def main():
 		debug = 'Debug:'
 
 		# Render as surface
-		temp_surf = font.render(debug, True, p.Color('white'))
+		temp_surf = p.font.Font(None, txt_size).render(debug, True, p.Color('white'))
 
 		# Blit text to the screen
 		screen.blit(temp_surf, (temp_x, temp_y))
@@ -342,14 +327,14 @@ def main():
 			debug = f'{key}: {pass_dict[key]}'
 
 			# Render as surface
-			temp_surf = font.render(debug, True, p.Color('white'))
+			temp_surf = p.font.Font(None, txt_size).render(debug, True, p.Color('white'))
 
 			# Blit text to screen
 			screen.blit(temp_surf, (temp_x, temp_y))
 		
 		# Blit text to screen
 		box.blit(screen, txt_surf1)
-		screen.blit(txt_surf2, (int(button.x + (button.w / 4)), button.y + 5))
+		button.blit(screen, txt_surf2)
 
 		# Update the screen
 		p.display.flip()
