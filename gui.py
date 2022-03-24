@@ -35,6 +35,8 @@ def check_pass(password: str) -> dict:
 		# Time that it took to crack the password
 		'totalTime': None,
 
+		'guessedPassword': None,
+
 		# Password has uppercase letters
 		'hasUp': None,
 
@@ -115,15 +117,25 @@ def check_pass(password: str) -> dict:
 			hasSym = True
 			strength += 1
 	
-	# Assign a strength value based on length and amount of variance
-	strength = strength * len(password)
-
+	# Assign a strength value based on amount of variance and length
+	if strength == 0:
+		my_dict['strength'] = 'very weak'
+	elif strength == 1:
+		my_dict['strength'] = 'weak'
+	elif strength == 2:
+		my_dict['strength'] = 'fairy strong' 
+	elif strength == 3:
+		my_dict['strength'] = 'strong'
+	elif strength == 4 and len(password) >= 12:
+		my_dict['strength'] = 'UNBREAKABLE'
+	elif strength == 4:
+		my_dict['strength'] = 'very strong'			
 	# Assign values to the dictionary
 	my_dict['hasUp'] = hasUp
 	my_dict['hasLow'] = hasLow
 	my_dict['hasNum'] = hasNum
 	my_dict['hasSym'] = hasSym
-	my_dict['strength'] = strength
+	my_dict['guessedPassword'] = cracked
 
 	return my_dict
 
