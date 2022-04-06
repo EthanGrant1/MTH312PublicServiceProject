@@ -137,8 +137,8 @@ def main():
 	disInfo = p.display.Info()
 
 	# Set the screen size and the window caption
-	max_w = disInfo.current_w - 50
-	max_h = disInfo.current_h - 50
+	max_w = 800
+	max_h = 600
 	screen = p.display.set_mode((max_w, max_h))
 	p.display.set_caption('Password Manager')
 	
@@ -147,6 +147,7 @@ def main():
 
 	# Input box variables
 	# ---------------------------
+	clear = ''
 
 	# A default text size
 	txt_size = 32
@@ -183,6 +184,11 @@ def main():
 
 	# Buttons are simply filled textboxes with static variables
 	button = tb(p.Rect(int(box_x + (box_x/8)), int(box_y + (box_y/8)), 145, txt_size), 0, 'white', 'Enter', None, 32, 'black')
+
+	# Password storing boxes
+	# -----------------------------
+	stickyNoteTitle = tb(p.Rect(0, (max_h / 3 * 2) - 40, max_w / 3, 40), 0, 'black', 'That sticky note on your monitor', unifont, 16, 'white')
+	stickyNote = tb(p.Rect(0, max_h / 3 * 2, max_w / 3, max_h / 3), 0, 'cyan', '', unifont, 16, 'black')
 
 	# Password checking variables
 	# -----------------------------
@@ -297,11 +303,16 @@ def main():
 
 		# Draw the elements
 		box.drawBox(screen)
+		stickyNoteTitle.drawBox(screen)
+		stickyNote.drawBox(screen)
 		button.drawBox(screen)
 
 		# Render the text as a surface
 		txt_surf1 = box.createRender()
 		txt_surf2 = button.createRender()
+		txt_surf3 = stickyNote.createRender()
+		stickyNote.setText(clear)
+		txt_surf4 = stickyNoteTitle.createRender()
 		
 		#### DEBUG DICTIONARY PRINTING ####
 
@@ -335,6 +346,8 @@ def main():
 		# Blit text to screen
 		box.blit(screen, txt_surf1)
 		button.blit(screen, txt_surf2)
+		stickyNote.blit(screen, txt_surf3)
+		stickyNoteTitle.blit(screen, txt_surf4)
 
 		# Update the screen
 		p.display.flip()
