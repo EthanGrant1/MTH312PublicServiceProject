@@ -8,9 +8,10 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.fernet import Fernet
 import base64
+from os import urandom as r
 
-# System level module for program args, i/o, exits, etc
-import sys as s
+# System level module for program args, i/o, exits, etc.
+# import sys as s
 
 # Helper function library that contains objects to render
 from HelperFunctions import textbox as tb
@@ -21,13 +22,14 @@ from time import time as t
 # Local variables in pygame for event handling
 from pygame.locals import *
 
-#### Stuff for password checking ####
+
+# Stuff for password checking #
 
 ######################################
-# check_pass(password) 
-# 
+# check_pass(password)
+#
 # Checks a password string to see if
-# if fulfills certain requirements.
+# it fulfills certain requirements.
 # Will also attempt to brute force
 # crack the password.
 #
@@ -37,359 +39,373 @@ from pygame.locals import *
 # Returns a dictionary of values
 ######################################
 def check_pass(password: str) -> dict:
-	
-	# Initialize a dictionary
-	my_dict = {
-		# Time that it took to crack the password
-		'totalTime': None,
+    # Initialize a dictionary
+    my_dict = {
+        # Time that it took to crack the password
+        'totalTime': None,
 
-		# Password has uppercase letters
-		'hasUp': None,
+        # Password has uppercase letters
+        'hasUp': None,
 
-		# Password has lowercase letters
-		'hasLow': None,
+        # Password has lowercase letters
+        'hasLow': None,
 
-		# Password contains one or more numbers
-		'hasNum': None,
+        # Password contains one or more numbers
+        'hasNum': None,
 
-		# Password contains one or more symbols
-		'hasSym': None,
+        # Password contains one or more symbols
+        'hasSym': None,
 
-		# The 'strength' score of your password
-		'strength': None
-	}
+        # The 'strength' score of your password
+        'strength': None
+    }
 
-	# Strings of possible characters
-	upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-	lower = 'abcdefghijklmnopqrstuvwxyz'
-	numbers = '1234567890'
-	symbols = '`-=[]\;\',./~!@#$%^&*()_+{}|:"<>?'
-	all_chars = upper + lower + numbers + symbols
+    # Strings of possible characters
+    upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    lower = 'abcdefghijklmnopqrstuvwxyz'
+    numbers = '1234567890'
+    symbols = '`-=[]\\;\',./~!@#$%^&*()_+{}|:"<>? '
+    all_chars = upper + lower + numbers + symbols
 
-	# Some boolean values to check the strength of our password
-	hasUp = False
-	hasLow = False
-	hasNum = False
-	hasSym = False
-	
-	# Cracked password
-	cracked = ''
+    # Some boolean values to check the strength of our password
+    hasUp = False
+    hasLow = False
+    hasNum = False
+    hasSym = False
 
-	# When we started cracking the password
-	start = t()
+    # Cracked password
+    cracked = ''
 
-	# When we ended cracking the password
-	end = start
+    # When we started cracking the password
+    start = t()
 
-	# Attempt to crack it
-	while cracked != password:
-		for i in range(len(password)):
+    # Attempt to crack it
+    while cracked != password:
+        for i in range(len(password)):
 
-			# Iterate over all possible characters
-			for j in range(len(all_chars)):
+            # Iterate over all possible characters
+            for j in range(len(all_chars)):
 
-				# If the character is found 
-				if all_chars[j] == password[i]:
-					cracked += all_chars[j]
+                # If the character is found
+                if all_chars[j] == password[i]:
+                    cracked += all_chars[j]
 
-	# Set the end time
-	end = t()
-	
-	# Total time that it took to crack the password
-	total = end - start
-	my_dict['totalTime'] = total
+    # Set the end time
+    end = t()
 
-	strength = 0
-	# Check the strength of the password
-	for i in range(len(cracked)):
-		
-		# Check if the password contains uppercase letters
-		if cracked[i] in upper and not hasUp:
-			hasUp = True
-			strength += 1
+    # Total time that it took to crack the password
+    total = end - start
+    my_dict['totalTime'] = total
 
-		# Check if the password contains lowercase letters
-		elif cracked[i] in lower and not hasLow:
-			hasLow = True
-			strength += 1
+    strength = 0
+    # Check the strength of the password
+    for i in range(len(cracked)):
 
-		# Check if the password contains any numbers
-		elif cracked[i] in numbers and not hasNum:
-			hasNum = True
-			strength += 1
+        # Check if the password contains uppercase letters
+        if cracked[i] in upper and not hasUp:
+            hasUp = True
+            strength += 1
 
-		# Check if the password contains any symbols
-		elif cracked[i] in symbols and not hasSym:
-			hasSym = True
-			strength += 1
-	
-	# Assign a strength value based on length and amount of variance
-	strength = strength * len(password)
+        # Check if the password contains lowercase letters
+        elif cracked[i] in lower and not hasLow:
+            hasLow = True
+            strength += 1
 
-	# Assign values to the dictionary
-	my_dict['hasUp'] = hasUp
-	my_dict['hasLow'] = hasLow
-	my_dict['hasNum'] = hasNum
-	my_dict['hasSym'] = hasSym
-	my_dict['strength'] = strength
+        # Check if the password contains any numbers
+        elif cracked[i] in numbers and not hasNum:
+            hasNum = True
+            strength += 1
 
-	return my_dict
+        # Check if the password contains any symbols
+        elif cracked[i] in symbols and not hasSym:
+            hasSym = True
+            strength += 1
 
-#### Main loop for the program ####
+    # Assign a strength value based on length and amount of variance
+    strength = strength * len(password)
+
+    # Assign values to the dictionary
+    my_dict['hasUp'] = hasUp
+    my_dict['hasLow'] = hasLow
+    my_dict['hasNum'] = hasNum
+    my_dict['hasSym'] = hasSym
+    my_dict['strength'] = strength
+
+    return my_dict
+
+
+# Main loop for the program #
 def main():
-	# calculate encryption values for mock encryption
-	supersecurepassword = 'monkeymagentarocketbenzene'
-	kdf = PBKDF2HMAC(algorithm=hashes.SHA256(),
-		length=32,
-		salt=b'randomstuff',
-		iterations=100000,
-		backend=default_backend()
-	)
-	key = base64.urlsafe_b64encode(kdf.derive(supersecurepassword.encode()))
-	fernet = Fernet(key)
+    # calculate encryption values for mock encryption
+    superSecurePassword = 'MonkeyMagentaRocketBenzene'
 
-	# Pygame variables
-	# -------------------------
+    # Randomly generated "salt" byte string
+    mySalt = r(16)
 
-	# Get user's screen size
-	disInfo = p.display.Info()
+    kdf = PBKDF2HMAC(algorithm=hashes.SHA256(),
+                     length=32,
+                     salt=mySalt,
+                     iterations=100000,
+                     backend=default_backend()
+                     )
+    key = base64.urlsafe_b64encode(kdf.derive(superSecurePassword.encode()))
+    fernet = Fernet(key)
 
-	# Set the screen size and the window caption
-	max_w = 800
-	max_h = 600
-	screen = p.display.set_mode((max_w, max_h))
-	p.display.set_caption('Password Manager')
-	
-	# Timer for frames per second
-	clock = p.time.Clock()
+    # Pygame variables
+    # -------------------------
 
-	# Input box variables
-	# ---------------------------
-	clear = ''
+    # Get user's screen size
+    # -------------------------
+    # Comment this out for now because of inconsistent monitor stuff
+    # disInfo = p.display.Info()
 
-	# A default text size
-	txt_size = 32
+    # Set the screen size and the window caption
+    max_w = 800
+    max_h = 600
+    screen = p.display.set_mode((max_w, max_h))
+    p.display.set_caption('Password Manager')
 
-	# Font for unicode symbols
-	unifont = 'seguisym.ttf'
-	
-	# Box position variables
-	box_x = int((max_w - 260) / 2)
-	box_y = int(max_h / 2) - 50
+    # Timer for frames per second
+    clock = p.time.Clock()
 
-	# Colors for if the box is clicked on or not
-	inactive_color = 'darkslategray3'
-	active_color = 'darkslategray1'
+    # Input box variables
+    # ---------------------------
+    clear = ''
 
-	# Change the color of the box
-	current_color = inactive_color
+    # A default text size
+    txt_size = 32
 
-	# Is the box currently active?
-	active = False
+    # Font for unicode symbols
+    unifont = 'seguisym.ttf'
 
-	# The text that will go into the box
-	default_txt = 'Check your password here...'
+    # Box position variables
+    box_x = int((max_w - 260) / 2)
+    box_y = int(max_h / 2) - 50
 
-	
-	# Our input box
-	box = tb(p.Rect(box_x, box_y, 300, txt_size), 3, current_color, default_txt, unifont, 16, current_color)
+    # Colors for if the box is clicked on or not
+    inactive_color = 'darkslategray3'
+    active_color = 'darkslategray1'
 
-	# Length of text contained inside of the box
-	txt_len = len(box.getText())
+    # Change the color of the box
+    current_color = inactive_color
 
-	# Button variables
-	# ----------------------------
+    # Is the box currently active?
+    active = False
 
-	# Buttons are simply filled textboxes with static variables
-	button = tb(p.Rect(int(box_x + (box_x/8)), int(box_y + (box_y/8)), 145, txt_size), 0, 'white', 'Enter', None, 32, 'black')
+    # The text that will go into the box
+    default_txt = 'Check your password here...'
 
-	# Password storing boxes
-	# -----------------------------
-	stickyNoteTitle = tb(p.Rect(0, (max_h / 3 * 2) - 40, max_w / 3, 40), 0, 'black', 'That sticky note on your monitor', unifont, 16, 'white')
-	stickyNote = tb(p.Rect(0, max_h / 3 * 2, max_w / 3, max_h / 3), 0, 'cyan', '', unifont, 16, 'black')
-	passwordMngrTitle = tb(p.Rect(max_w / 3, (max_h / 3 * 2) - 40,  max_w / 3, 40), 0, 'black', 'A "real" password manager', unifont, 16, 'white')
-	passwordMngr = tb(p.Rect(max_w / 3, (max_h / 3 * 2),  max_w / 3, max_h / 3), 0, 'gold', '', unifont, 16, 'black')
+    # Our input box
+    box = tb(p.Rect(box_x, box_y, 300, txt_size), 3, current_color, default_txt, unifont, 16, 'black')
 
-	# Password checking variables
-	# -----------------------------
-	
-	# The dict that holds the information about the password check
-	pass_dict = { }
+    # Length of text contained inside the box
+    txt_len = len(box.getText())
 
-	# Debug text that includes the password check variables
-	debug = ''
+    # Button variables
+    # ----------------------------
 
-	# Text that is given to the user upon checking their password
-	feedback = ''
+    # Buttons are simply filled text boxes with static variables
+    button = tb(p.Rect(int(box_x + (box_x / 8)), int(box_y + (box_y / 8)), 145, txt_size), 0, 'white', 'Enter', None,
+                32, 'black')
 
+    # Password storing boxes
+    # -----------------------------
+    stickyNoteTitle = tb(p.Rect(0, (max_h / 3 * 2) - 40, max_w / 3, 40), 0, 'black', 'That sticky note on your monitor',
+                         unifont, 16, 'white')
 
-	# Main activity loop
-	running = True
-	while running:
-		
-		# Events that are in the event queue
-		for e in p.event.get():
-			
-			# If the user quits the program
-			if e.type == QUIT:
-				running = False
+    stickyNote = tb(p.Rect(0, max_h / 3 * 2, max_w / 3, max_h / 3), 0, 'cyan', '', unifont, 16, 'black')
 
-			# Click event
-			if e.type == p.MOUSEBUTTONDOWN:
-				
-				# If the click event occurred within the text box
-				if box.getBox().collidepoint(e.pos):
-					# The box is now active and ready for input
-					active = True
+    passwordMngrTitle = tb(p.Rect(max_w / 3, (max_h / 3 * 2) - 40, max_w / 3, 40), 0, 'black',
+                           'A "real" password manager', unifont, 16, 'white')
 
-					# Clear out the old text
-					box.setText('')
-					txt_len = 0
-					clear = ''
-				
-				# Otherwise the box should be inactive
-				else:
-					# Will no longer accept input
-					active = False
-					
-					# Set the box text back to the default
-					if txt_len == 0:
-						box.setText(default_txt)
+    passwordMngr = tb(p.Rect(max_w / 3, (max_h / 3 * 2), max_w / 3, max_h / 3), 0, 'gold', '', unifont, 16, 'black')
 
-				# Change the color of the box
-				current_color = active_color if active else inactive_color
-				
-				# If the click event occured within the button
-				if button.getBox().collidepoint(e.pos):
-					passwordMngr.setText(bytes.decode(fernet.encrypt(str.encode(clear))))
+    # Password checking variables
+    # -----------------------------
 
-					# Check the pasword
-					pass_dict = check_pass(clear)
+    # The dict that holds the information about the password check
+    pass_dict = {}
 
-					# Clear out the text
-					box.setText('')
-					txt_len = 0
-					clear = ''
+    # Debug text that includes the password check variables
+    # debug = ''
 
-			# Keyboard event
-			if e.type == p.KEYDOWN:
-				
-				# Check if the box is currently active
-				if active:
-					# If the user presses Enter
-					if e.key == p.K_RETURN:
-						# Reset the text to the default
-						box.setText(default_txt)
+    # Text that is given to the user upon checking their password
+    # TODO: Add feedback text about best practices of password management
+    feedback = ''
 
-						# Check the password
-						pass_dict = check_pass(clear)
-					
-						# Clear out the text
-						box.setText('')
-						txt_len = 0
-						clear = ''
+    # Main activity loop
+    running = True
+    while running:
 
-					# If the user presses Backspace
-					elif e.key == p.K_BACKSPACE:
+        # Events that are in the event queue
+        for e in p.event.get():
 
-						# Check if the text to be rendered is within the bounds of the box
-						if ((txt_size / 2) * txt_len) <= box.getBox().w:
-							# Delete a character of text
-							box.setText(box.getText()[:-1])
-							clear = clear[:-1]
-						
-						# Decrease the length
-						txt_len -= 1
-						
-						# Ensure that length stays within correct bounds
-						if txt_len < 0:
-							txt_len = 0
-					
-					# Check if the unicode is a function key or not
-					# (Shift, Tab, etc. will result in '' when checking the unicode)
-					elif e.unicode != '':
-						# If the text to be rendered is inside of the bounds of the box
-						if (box.getFontSize() * (txt_len + 1)) < box.getBox().w:
-							# Append a password character to the text
-							box.setText(box.getText() + '⬤')
-						
-						# Append the unicode character to our cleartext
-						clear += e.unicode
+            # If the user quits the program
+            if e.type == QUIT:
+                running = False
 
-						# Increase the length
-						txt_len += 1
-		
-		# Color the screen
-		screen.fill((30, 30, 30))
+            # Click event
+            if e.type == p.MOUSEBUTTONDOWN:
 
-		# Draw the elements
-		box.drawBox(screen)
-		button.drawBox(screen)
-		stickyNoteTitle.drawBox(screen)
-		stickyNote.drawBox(screen)
-		passwordMngrTitle.drawBox(screen)
-		passwordMngr.drawBox(screen)
+                # If the click event occurred within the text box
+                if box.getBox().collidepoint(e.pos):
+                    # The box is now active and ready for input
+                    active = True
 
-		# Render the text as a surface
-		#txt_surf1 = box.createRender()
-		#txt_surf2 = button.createRender()
-		##txt_surf3 = stickyNote.createRender()
-		stickyNote.setText(clear + '\nhello')
-		#txt_surf4 = stickyNoteTitle.createRender()
-		
-		#### DEBUG DICTIONARY PRINTING ####
+                    # Clear out the old text
+                    box.setText('')
+                    txt_len = 0
+                    clear = ''
 
-		# Position variables
-		temp_x = 20
-		temp_y = 20
+                # Otherwise, the box should be inactive
+                else:
+                    # Will no longer accept input
+                    active = False
 
-		# Debug text
-		debug = 'Debug:'
+                    # Set the box text back to the default
+                    if txt_len == 0:
+                        box.setText(default_txt)
 
-		# Render as surface
-		temp_surf = p.font.Font(None, txt_size).render(debug, True, p.Color('white'))
+                # Change the color of the box
+                current_color = active_color if active else inactive_color
 
-		# Blit text to the screen
-		screen.blit(temp_surf, (temp_x, temp_y))
-		
-		# Check the password check dictionary
-		for key in pass_dict:
-			# Render each key in a new line
-			temp_y += txt_size + 5
+                box.setBoxColor(current_color)
 
-			# Grab the value from the dictionary
-			debug = f'{key}: {pass_dict[key]}'
+                # If the click event occurred within the button
+                if button.getBox().collidepoint(e.pos):
+                    # Set the password manager box text to the encrypted text
+                    passwordMngr.setText(bytes.decode(fernet.encrypt(str.encode(clear))))
 
-			# Render as surface
-			temp_surf = p.font.Font(None, txt_size).render(debug, True, p.Color('white'))
+                    # Check the password
+                    pass_dict = check_pass(clear)
 
-			# Blit text to screen
-			screen.blit(temp_surf, (temp_x, temp_y))
-		
-		# Blit text to screen
-		#box.blit(screen, txt_surf1)
-		#button.blit(screen, txt_surf2)
-		#stickyNote.blit(screen, txt_surf3)
-		#stickyNoteTitle.blit(screen, txt_surf4)
-		box.drawText(screen)
-		button.drawText(screen)
-		stickyNote.drawText(screen)
-		stickyNoteTitle.drawText(screen)
-		passwordMngrTitle.drawText(screen)
-		passwordMngr.drawText(screen)
+                    # Clear out the text
+                    box.setText('')
+                    txt_len = 0
+                    clear = ''
 
-		# Update the screen
-		p.display.flip()
+            # Keyboard event
+            if e.type == p.KEYDOWN:
 
-		# Ensure the clock is in line with 60 frames per second
-		clock.tick(60)
+                # Check if the box is currently active
+                if active:
+                    # If the user presses Enter
+                    if e.key == p.K_RETURN:
+                        # Reset the text to the default
+                        box.setText(default_txt)
+
+                        # Check the password
+                        pass_dict = check_pass(clear)
+
+                        # Clear out the text
+                        box.setText('')
+                        txt_len = 0
+                        clear = ''
+
+                    # If the user presses Backspace
+                    elif e.key == p.K_BACKSPACE:
+
+                        # Check if the text to be rendered is within the bounds of the box
+                        if ((txt_size / 2) * txt_len) <= box.getBox().w:
+                            # Delete a character of text
+                            box.setText(box.getText()[:-1])
+                            clear = clear[:-1]
+                            stickyNote.setText(clear)
+
+                        # Decrease the length
+                        txt_len -= 1
+
+                        # Ensure that length stays within correct bounds
+                        if txt_len < 0:
+                            txt_len = 0
+
+                    # Check if the unicode is a function key or not
+                    # (Shift, Tab, etc. will result in '' when checking the unicode)
+                    elif e.unicode != '':
+                        # If the text to be rendered is inside the bounds of the box
+                        if (box.getFontSize() * (txt_len + 1)) < box.getBox().w:
+                            # Append a password character to the text
+                            box.setText(box.getText() + '⬤')
+
+                        # Append the unicode character to our clear text
+                        clear += e.unicode
+                        stickyNote.setText(clear)
+
+                        # Increase the length
+                        txt_len += 1
+
+        # Color the screen
+        screen.fill((30, 30, 30))
+
+        # Draw the elements
+        # box.drawBox(screen)
+        # button.drawBox(screen)
+        # stickyNoteTitle.drawBox(screen)
+        # stickyNote.drawBox(screen)
+        # passwordMngrTitle.drawBox(screen)
+        # passwordMngr.drawBox(screen)
+
+        # Render the text as a surface
+        # txt_surf1 = box.createRender()
+        # txt_surf2 = button.createRender()
+        # txt_surf3 = stickyNote.createRender()
+        # txt_surf4 = stickyNoteTitle.createRender()
+
+        # DEBUG DICTIONARY PRINTING #
+
+        # Position variables
+        temp_x = 20
+        temp_y = 20
+
+        # Debug text
+        debug = 'Debug:'
+
+        # Render as surface
+        temp_surf = p.font.Font(None, txt_size).render(debug, True, p.Color('white'))
+
+        # Blit text to the screen
+        screen.blit(temp_surf, (temp_x, temp_y))
+
+        # Check the password check dictionary
+        for key in pass_dict:
+            # Render each key in a new line
+            temp_y += txt_size + 5
+
+            # Grab the value from the dictionary
+            debug = f'{key}: {pass_dict[key]}'
+
+            # Render as surface
+            temp_surf = p.font.Font(None, txt_size).render(debug, True, p.Color('white'))
+
+            # Blit text to screen
+            screen.blit(temp_surf, (temp_x, temp_y))
+
+        # Blit text to screen
+        # box.blit(screen, txt_surf1)
+        # button.blit(screen, txt_surf2)
+        # stickyNote.blit(screen, txt_surf3)
+        # stickyNoteTitle.blit(screen, txt_surf4)
+        
+        box.drawText(screen)
+        button.drawText(screen)
+        stickyNote.drawText(screen)
+        stickyNoteTitle.drawText(screen)
+        passwordMngrTitle.drawText(screen)
+        passwordMngr.drawText(screen)
+
+        # Update the screen
+        p.display.flip()
+
+        # Ensure the clock is in line with 60 frames per second
+        clock.tick(60)
+
 
 if __name__ == "__main__":
-	# Initialize pygame for our system
-	p.init()
+    # Initialize pygame for our system
+    p.init()
 
-	# Run the main
-	main()
+    # Run the main
+    main()
 
-	# If we exit the main loop, quit the program
-	p.quit()
+    # If we exit the main loop, quit the program
+    p.quit()
