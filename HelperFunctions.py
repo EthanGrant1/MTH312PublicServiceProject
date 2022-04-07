@@ -84,12 +84,22 @@ class textbox:
 	
 	# createRender will use the font.render() method to render the text as a
 	# surface. It simply uses the variables that we defined previously.
-	def createRender(self):
-		return self.font.render(self.text, True, self.fontColor)
+	#def createRender(self):
+	#	return self.font.render(self.text, True, self.fontColor)
 	
 	# blit will use the Surface.blit() method to draw an object on the
 	# screen. In this case it will be our text surface that we defined
 	# in createRender. We will blit the surface with some padding, so 
 	# that it fits snugly in the box.
-	def blit(self, screen, render):
-		screen.blit(render, (self.box.x + 5, self.box.y + 5))
+	#def blit(self, screen, render):
+	#	screen.blit(render, (self.box.x + 5, self.box.y + 5))
+
+	# drawText splits the string into multiple lines (if they exist)
+	# each line is in turn rendered in the font as a surface and then
+	# blitted to the screen
+	def drawText(self, screen):
+		lines = self.text.split('\n')
+		lineOffset = self.box.y + 5
+		for line in lines:
+			screen.blit(self.font.render(line, True, self.fontColor), (self.box.x + 5, lineOffset))
+			lineOffset = lineOffset + self.fontSize + 5

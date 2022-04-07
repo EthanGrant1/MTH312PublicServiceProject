@@ -1,6 +1,14 @@
 # Gamer moment
 import pygame as p
 
+# import cryptography functions
+import cryptography
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+from cryptography.fernet import Fernet
+import base64
+
 # System level module for program args, i/o, exits, etc
 import sys as s
 
@@ -129,7 +137,17 @@ def check_pass(password: str) -> dict:
 
 #### Main loop for the program ####
 def main():
-	
+	# calculate encryption values for mock encryption
+	supersecurepassword = 'monkeymagentarocketbenzene'
+	kdf = PBKDF2HMAC(algorithm=hashes.SHA256(),
+		length=32,
+		salt=b'randomstuff',
+		iterations=100000,
+		backend=default_backend()
+	)
+	key = base64.urlsafe_b64encode(kdf.derive(supersecurepassword.encode()))
+	fernet = Fernet(key)
+
 	# Pygame variables
 	# -------------------------
 
@@ -189,6 +207,8 @@ def main():
 	# -----------------------------
 	stickyNoteTitle = tb(p.Rect(0, (max_h / 3 * 2) - 40, max_w / 3, 40), 0, 'black', 'That sticky note on your monitor', unifont, 16, 'white')
 	stickyNote = tb(p.Rect(0, max_h / 3 * 2, max_w / 3, max_h / 3), 0, 'cyan', '', unifont, 16, 'black')
+	passwordMngrTitle = tb(p.Rect(max_w / 3, (max_h / 3 * 2) - 40,  max_w / 3, 40), 0, 'black', 'A "real" password manager', unifont, 16, 'white')
+	passwordMngr = tb(p.Rect(max_w / 3, (max_h / 3 * 2),  max_w / 3, max_h / 3), 0, 'gold', '', unifont, 16, 'black')
 
 	# Password checking variables
 	# -----------------------------
@@ -241,7 +261,8 @@ def main():
 				
 				# If the click event occured within the button
 				if button.getBox().collidepoint(e.pos):
-	
+					passwordMngr.setText(bytes.decode(fernet.encrypt(str.encode(clear))))
+
 					# Check the pasword
 					pass_dict = check_pass(clear)
 
@@ -303,16 +324,18 @@ def main():
 
 		# Draw the elements
 		box.drawBox(screen)
+		button.drawBox(screen)
 		stickyNoteTitle.drawBox(screen)
 		stickyNote.drawBox(screen)
-		button.drawBox(screen)
+		passwordMngrTitle.drawBox(screen)
+		passwordMngr.drawBox(screen)
 
 		# Render the text as a surface
-		txt_surf1 = box.createRender()
-		txt_surf2 = button.createRender()
-		txt_surf3 = stickyNote.createRender()
-		stickyNote.setText(clear)
-		txt_surf4 = stickyNoteTitle.createRender()
+		#txt_surf1 = box.createRender()
+		#txt_surf2 = button.createRender()
+		##txt_surf3 = stickyNote.createRender()
+		stickyNote.setText(clear + '\nhello')
+		#txt_surf4 = stickyNoteTitle.createRender()
 		
 		#### DEBUG DICTIONARY PRINTING ####
 
@@ -344,10 +367,16 @@ def main():
 			screen.blit(temp_surf, (temp_x, temp_y))
 		
 		# Blit text to screen
-		box.blit(screen, txt_surf1)
-		button.blit(screen, txt_surf2)
-		stickyNote.blit(screen, txt_surf3)
-		stickyNoteTitle.blit(screen, txt_surf4)
+		#box.blit(screen, txt_surf1)
+		#button.blit(screen, txt_surf2)
+		#stickyNote.blit(screen, txt_surf3)
+		#stickyNoteTitle.blit(screen, txt_surf4)
+		box.drawText(screen)
+		button.drawText(screen)
+		stickyNote.drawText(screen)
+		stickyNoteTitle.drawText(screen)
+		passwordMngrTitle.drawText(screen)
+		passwordMngr.drawText(screen)
 
 		# Update the screen
 		p.display.flip()
