@@ -211,14 +211,22 @@ def main():
     # Password storing boxes
     # -----------------------------
     stickyNoteTitle = tb(p.Rect(0, (max_h / 3 * 2) - 40, max_w / 3, 40), 0, 'black', 'That sticky note on your monitor',
-                         unifont, 16, 'white')
+        unifont, 16, 'white')
+    stickyNote = tb(p.Rect(0, max_h / 3 * 2, max_w / 3, (max_h / 3) - 40), 0, 'cyan', '', unifont, 16, 'black')
+    stickyNoteSubtitle = tb(p.Rect(0, max_h - 40, max_w / 3, 40), 0, 'black', 'Easy to remember - for anyone',
+        unifont, 16, 'red')
 
-    stickyNote = tb(p.Rect(0, max_h / 3 * 2, max_w / 3, max_h / 3), 0, 'cyan', '', unifont, 16, 'black')
+    notepadFileTitle = tb(p.Rect(max_w / 3, (max_h / 3 * 2) - 40, max_w / 3, 40), 0, 'black', 'Notepad file on your desktop',
+        unifont, 16, 'white')
+    notepadFile = tb(p.Rect(max_w / 3, max_h / 3 * 2, max_w / 3, (max_h / 3) - 40), 0, 'white', '', unifont, 16, 'black')
+    notepadFileSubtitle = tb(p.Rect(max_w / 3, max_h - 40, max_w / 3, 40), 0, 'black', 'Security by obscurity, I guess?',
+        unifont, 16, 'red')
 
-    passwordMngrTitle = tb(p.Rect(max_w / 3, (max_h / 3 * 2) - 40, max_w / 3, 40), 0, 'black',
-                           'A "real" password manager', unifont, 16, 'white')
-
-    passwordMngr = tb(p.Rect(max_w / 3, (max_h / 3 * 2), max_w / 3, max_h / 3), 0, 'gold', '', unifont, 16, 'black')
+    passwordMngrTitle = tb(p.Rect(max_w / 3 * 2, (max_h / 3 * 2) - 40, max_w / 3, 40), 0, 'black',
+        'A "real" password manager', unifont, 16, 'white')
+    passwordMngr = tb(p.Rect(max_w / 3 * 2, (max_h / 3 * 2), max_w / 3, (max_h / 3) - 40), 0, 'gold', '', unifont, 16, 'black')
+    passwordMngrSubtitle = tb(p.Rect(max_w / 3 * 2, max_h - 40, max_w / 3, 40), 0, 'black', 
+        'Practically unbreakable', unifont, 16, 'green')
 
     # Password checking variables
     # -----------------------------
@@ -330,26 +338,13 @@ def main():
                         # Append the unicode character to our clear text
                         clear += e.unicode
                         stickyNote.setText(clear)
+                        notepadFile.setText(clear)
 
                         # Increase the length
                         txt_len += 1
 
         # Color the screen
         screen.fill((30, 30, 30))
-
-        # Draw the elements
-        # box.drawBox(screen)
-        # button.drawBox(screen)
-        # stickyNoteTitle.drawBox(screen)
-        # stickyNote.drawBox(screen)
-        # passwordMngrTitle.drawBox(screen)
-        # passwordMngr.drawBox(screen)
-
-        # Render the text as a surface
-        # txt_surf1 = box.createRender()
-        # txt_surf2 = button.createRender()
-        # txt_surf3 = stickyNote.createRender()
-        # txt_surf4 = stickyNoteTitle.createRender()
 
         # DEBUG DICTIONARY PRINTING #
 
@@ -380,18 +375,18 @@ def main():
             # Blit text to screen
             screen.blit(temp_surf, (temp_x, temp_y))
 
-        # Blit text to screen
-        # box.blit(screen, txt_surf1)
-        # button.blit(screen, txt_surf2)
-        # stickyNote.blit(screen, txt_surf3)
-        # stickyNoteTitle.blit(screen, txt_surf4)
-        
+        # draw text boxes on screen        
         box.drawText(screen)
         button.drawText(screen)
-        stickyNote.drawText(screen)
         stickyNoteTitle.drawText(screen)
+        stickyNote.drawText(screen)
+        stickyNoteSubtitle.drawText(screen)
+        notepadFileTitle.drawText(screen)
+        notepadFile.drawText(screen)
+        notepadFileSubtitle.drawText(screen)
         passwordMngrTitle.drawText(screen)
         passwordMngr.drawText(screen)
+        passwordMngrSubtitle.drawText(screen)
 
         # Update the screen
         p.display.flip()
