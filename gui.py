@@ -9,6 +9,7 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.fernet import Fernet
 import base64
 from os import urandom as r
+import math
 
 # System level module for program args, i/o, exits, etc.
 # import sys as s
@@ -94,8 +95,10 @@ def check_pass(password: str) -> dict:
     end = t()
 
     # Total time that it took to crack the password
-    total = end - start
-    my_dict['totalTime'] = total
+    # trunc shortens integer
+    total = round(end - start, 5)
+
+    my_dict['totalTime'] = str(total) + ' second'
 
     strength = 0
     # Check the strength of the password
@@ -196,7 +199,7 @@ def main():
     default_txt = 'Check your password here...'
 
     # Our input box
-    box = tb(p.Rect(box_x, box_y, 300, txt_size), 3, current_color, default_txt, unifont, 16, 'black')
+    box = tb(p.Rect(box_x-40, box_y-4, 300, txt_size), 3, current_color, default_txt, unifont, 16, 'black')
 
     # Length of text contained inside the box
     txt_len = len(box.getText())
@@ -353,16 +356,20 @@ def main():
         temp_y = 20
 
         # Debug text
-        debug = 'Debug:'
+        debug = 'Debug'
 
         # Render as surface
-        temp_surf = p.font.Font(None, txt_size).render(debug, True, p.Color('white'))
+        temp_surf = p.font.Font(None, txt_size).render(debug, True, p.Color('green'))
 
-        # Blit text to the screen
-        screen.blit(temp_surf, (temp_x, temp_y))
+        # temp variable to blit 'debug' onto screen
+        counter = 0
 
         # Check the password check dictionary
         for key in pass_dict:
+            #blit 'debug' to screen along with the first key in the dictionary
+            if counter == 0:
+                screen.blit(temp_surf, (temp_x, temp_y))
+
             # Render each key in a new line
             temp_y += txt_size + 5
 
@@ -374,6 +381,7 @@ def main():
 
             # Blit text to screen
             screen.blit(temp_surf, (temp_x, temp_y))
+            counter+=1
 
         # draw text boxes on screen        
         box.drawText(screen)
