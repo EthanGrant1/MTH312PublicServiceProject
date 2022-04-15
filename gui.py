@@ -252,8 +252,11 @@ def option_one():
                 if active:
                     # If the user presses Enter
                     if e.key == p.K_RETURN:
+                        
                         # Reset the text to the default
                         box.setText(default_txt)
+
+                        passwordMngr.setText(bytes.decode(fernet.encrypt(str.encode(clear))))
 
                         # Check the password
                         pass_dict = check_pass(clear)
@@ -262,6 +265,7 @@ def option_one():
                         box.setText('')
                         txt_len = 0
                         clear = ''
+                        
 
                     # If the user presses Backspace
                     elif e.key == p.K_BACKSPACE:
@@ -353,19 +357,48 @@ def option_one():
 def option_two():
     # Loads the image
     image = p.image.load('password_manager.png')
+    arrow = p.image.load('arrow.png')
+    output = tb(p.Rect(0, 300, max_w + 20, max_h/2), 0, 'black', '', unifont, 23, 'white')
 
     # Main activity
     running = True
     while running:
         # Fills the screen with grey color
-        screen.fill("grey")
+        screen.fill("white")
+        backgroundTop = p.draw.rect(screen, 'blue', p.Rect(0, 0, max_w, max_h/2),  4, 3)
+        masterPasswordBorder = p.draw.rect(screen, 'blue', p.Rect(18, 131, 312, 33),  2, 4)
+        passwordBorder = p.draw.rect(screen, 'blue', p.Rect(495, 122, 248, 58),  2, 4) 
+
+
 
         # Back Button
-        OPTIONS_BACK  = tb(p.Rect(20, 20, 45, 20), 0, 'grey', 'BACK', None, 20, 'black')
+        OPTIONS_BACK  = tb(p.Rect(20, 20, 45, 20), 0, 'white', 'BACK', None, 20, 'black')
         OPTIONS_BACK.drawText(screen)
 
         # Draw image to the screen
-        screen.blit(image, (90,10))
+        #screen.blit(image, (90,10))
+
+        #MASTER PASSWORD
+        masterPasswordFont = p.font.SysFont('Times New Roman', 32)
+        masterPassword = masterPasswordFont.render('MASTER PASSWORD', False, 'black')
+        masterRect = masterPassword.get_rect(topleft=(20,130))
+
+        #PASSWORD Vault
+        # passwordVaultFont = p.font.SysFont('Times New Roman', 20) 
+        # passwordVault = passwordVaultFont.render('PASSWORD VAULT', False, 'red')
+        # passwordRect = passwordVault.get_rect(topleft=(400,20))
+
+        #Encrypted Password
+        EncryptedPassword = tb(p.Rect(500,128,240,50),0, 'white', 'PASSWORDS', None, 50,'red')
+
+        
+        
+
+        screen.blit(masterPassword,masterRect)
+        screen.blit(arrow, (340,108))
+        # screen.blit(passwordVault,passwordRect)
+        EncryptedPassword.drawText(screen)
+        
         
         # Events that are in the event queue
         for e in p.event.get():
@@ -378,7 +411,13 @@ def option_two():
                 # If the click even occured within the back button
                 if OPTIONS_BACK.getBox().collidepoint(e.pos):
                     running = False
-            
+                if masterRect.collidepoint(e.pos):
+                    output.setText('[MASTER KEY]                                                                                                                >used to accessed the passwords stored in the password vault                              >only have to memorize one MASTER PASSWORD to access all passwords')
+                if EncryptedPassword.getBox().collidepoint(e.pos):
+                    output.setText('[PASSWORD MANAGER]                                                                                               >passwords are stored in encrypted vault                                                                  >most password manager generates random secure password to avoid                  repeated password                                                                                                     >autofill feature means no need to memorize all the different passwords')
+                    
+
+        output.drawText(screen)    
         # Update the screen
         p.display.flip() 
 
