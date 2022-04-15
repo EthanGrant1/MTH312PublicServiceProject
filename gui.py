@@ -359,8 +359,11 @@ def option_two():
     image = p.image.load('password_manager.png')
     arrow = p.image.load('arrow.png')
     sha = p.image.load("sha.png")
-    DEFAULT_SHA_SIZE = (784, 200)
+    pbk = p.image.load("pbk.png")
+    DEFAULT_SHA_SIZE = (392, 200)
+    DEFAULT_PBK_SIZE = (392, 200)
     sha = p.transform.scale(sha, DEFAULT_SHA_SIZE)
+    pbk = p.transform.scale(pbk, DEFAULT_PBK_SIZE)
     output = tb(p.Rect(0,600, max_w + 20, max_h/2), 0, 'black', '', unifont, 23, 'white')
 
     # Main activity
@@ -399,7 +402,8 @@ def option_two():
 
         screen.blit(masterPassword,masterRect)
         screen.blit(arrow, (340,108))
-        screen.blit(sha, (4, 240))
+        screen.blit(sha, (4, 280))
+        screen.blit(pbk, (400, 280))
         # screen.blit(passwordVault,passwordRect)
         EncryptedPassword.drawText(screen)
         
