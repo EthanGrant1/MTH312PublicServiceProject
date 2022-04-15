@@ -358,14 +358,17 @@ def option_two():
     # Loads the image
     image = p.image.load('password_manager.png')
     arrow = p.image.load('arrow.png')
-    output = tb(p.Rect(0, 300, max_w + 20, max_h/2), 0, 'black', '', unifont, 23, 'white')
+    sha = p.image.load("sha.png")
+    DEFAULT_SHA_SIZE = (784, 200)
+    sha = p.transform.scale(sha, DEFAULT_SHA_SIZE)
+    output = tb(p.Rect(0,600, max_w + 20, max_h/2), 0, 'black', '', unifont, 23, 'white')
 
     # Main activity
     running = True
     while running:
         # Fills the screen with grey color
         screen.fill("white")
-        backgroundTop = p.draw.rect(screen, 'blue', p.Rect(0, 0, max_w, max_h/2),  4, 3)
+        backgroundTop = p.draw.rect(screen, 'blue', p.Rect(0, 0, max_w, max_h),  4, 3)
         masterPasswordBorder = p.draw.rect(screen, 'blue', p.Rect(18, 131, 312, 33),  2, 4)
         passwordBorder = p.draw.rect(screen, 'blue', p.Rect(495, 122, 248, 58),  2, 4) 
 
@@ -396,6 +399,7 @@ def option_two():
 
         screen.blit(masterPassword,masterRect)
         screen.blit(arrow, (340,108))
+        screen.blit(sha, (4, 240))
         # screen.blit(passwordVault,passwordRect)
         EncryptedPassword.drawText(screen)
         
