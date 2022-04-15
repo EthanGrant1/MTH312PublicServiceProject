@@ -54,7 +54,7 @@ def main():
 
         # Menu title font and words
         titleFont = p.font.SysFont('Helvetica', 68)
-        title = titleFont.render('SOME TITLE', False, (195,145,205))
+        title = titleFont.render('Password Encryption Utility', False, (195,145,205))
        
         # Draw the title on the screen
         screen.blit(title, (60,40))
@@ -93,6 +93,7 @@ def main():
 
         # Ensure the clock is in line with 60 frames per second
         clock.tick(60)
+
 
 
 def option_one():
@@ -402,24 +403,29 @@ def option_two():
 def check_pass(password: str) -> dict:
     # Initialize a dictionary
     my_dict = {
-        # Time that it took to crack the password
-        'totalTime': None,
+        # Time that it took to crack the password   
+        'Total Time': None,
 
         # Password has uppercase letters
-        'hasUp': None,
+        'Has Upper Case': None,
 
         # Password has lowercase letters
-        'hasLow': None,
+        'Has Lower Case': None,
 
         # Password contains one or more numbers
-        'hasNum': None,
+        'Has Number': None,
 
         # Password contains one or more symbols
-        'hasSym': None,
+        'Has Symbol': None,
 
         # The 'strength' score of your password
         'strength': None
     }
+
+    # Calculate the length
+    length_error = len(password) < 8
+    
+    
 
     # Strings of possible characters
     upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -456,9 +462,9 @@ def check_pass(password: str) -> dict:
 
     # Total time that it took to crack the password
     # trunc shortens integer
-    total = round(end - start, 7 )
+    total = round(end - start, 7)
 
-    my_dict['totalTime'] = str(total) + ' second'
+    my_dict['Total Time'] = str(total)
 
     strength = 0
     # Check the strength of the password
@@ -488,10 +494,10 @@ def check_pass(password: str) -> dict:
     strength = strength * len(password)
 
     # Assign values to the dictionary
-    my_dict['hasUp'] = hasUp
-    my_dict['hasLow'] = hasLow
-    my_dict['hasNum'] = hasNum
-    my_dict['hasSym'] = hasSym
+    my_dict['Has Upper Case'] = hasUp
+    my_dict['Has Lower Case'] = hasLow
+    my_dict['Has Number'] = hasNum
+    my_dict['Has Symbol'] = hasSym
     my_dict['strength'] = strength
 
     return my_dict
