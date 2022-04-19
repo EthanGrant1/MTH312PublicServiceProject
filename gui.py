@@ -1,5 +1,6 @@
 # Gamer moment
 from ctypes.wintypes import RGB
+from re import S
 import pygame as p
 
 # import cryptography functions
@@ -9,10 +10,14 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.fernet import Fernet
 import base64
-from os import urandom as r
+from os import fchdir, urandom as r
 
 #import math library
 import math
+
+import webbrowser
+
+from sqlalchemy import true
 
 # System level module for program args, i/o, exits, etc.
 # import sys as s
@@ -53,11 +58,11 @@ def main():
         screen.fill("black")
 
         # Menu title font and words
-        titleFont = p.font.SysFont('Helvetica', 68)
+        titleFont = p.font.SysFont('Helvetica', 60)
         title = titleFont.render('Password Encryption Utility', False, (195,145,205))
        
         # Draw the title on the screen
-        screen.blit(title, (60,40))
+        screen.blit(title, (40,120))
         
         # The first option in the menu
         option_1 = tb(p.Rect(250,238,300,42), 0, 'black', 'PASSWORD CHECKER', unifont, 30, 'white')
@@ -65,9 +70,13 @@ def main():
         # The second option
         option_2 = tb(p.Rect(180,320,460,42), 0, 'black', 'PASSWORD MANAGER FEATURES', unifont, 30, 'white')
 
+        # Developers
+        developer = tb(p.Rect(20,550,460,42), 0, 'black', 'Developed by Alec, Brennan, Ethan, Jochen', unifont, 15, 'green')
+
         # Draw textboxes on the screen
         option_1.drawText(screen)
         option_2.drawText(screen)
+        developer.drawText(screen)
 
         # Events that are in the event queue
         for e in p.event.get():
@@ -186,7 +195,8 @@ def option_one():
     running = True
     while running:
         # Color the screen
-        screen.fill((30, 30, 30))
+        # screen.fill((30, 30, 30))
+        screen.fill('black')
         # Back button to go to the menu
         OPTIONS_BACK  = tb(p.Rect(20, 20, 45, 20), 0, 'black', 'BACK', None, 20, 'white')
         # Changes back button color
@@ -308,31 +318,66 @@ def option_one():
         temp_y = 50
 
         # Debug text
-        debug = 'Debug'
+        # debug = 'Your password needs: '
 
         # Render as surface
-        temp_surf = p.font.Font(None, txt_size).render(debug, True, p.Color('green'))
+        
 
         # temp variable to blit 'debug' onto screen
         counter = 0
+        debug = 'Your password needs: '
+        temp_surf = p.font.Font(None, txt_size + 5).render(debug, True, p.Color('green'))
+        #counter to check if password fulfills all the requirement
+        fCounter = 4
 
         # Check the password check dictionary
         for key in pass_dict:
             #blit 'debug' to screen along with the first key in the dictionary
+
             if counter == 0:
                 screen.blit(temp_surf, (temp_x, temp_y))
 
             # Render each key in a new line
-            temp_y += txt_size + 5
 
             # Grab the value from the dictionary
-            debug = f'{key}: {pass_dict[key]}'
+            if key == 'Total Time':
+                debug = 'How long would it take for BRUTE'
+                temp_surf = p.font.Font(None, 25).render(debug, True, p.Color('red'))
+                screen.blit(temp_surf, (500, 75))
+                debug = 'FORCE to find your password?'
+                temp_surf = p.font.Font(None, 25).render(debug, True, p.Color('red'))
+                screen.blit(temp_surf,(500, 100 )) 
+                debug = f'{pass_dict[key]}'
+                temp_surf = p.font.Font(None, 25).render(debug, True, p.Color('red'))
+                screen.blit(temp_surf,(500, 125 )) 
 
-            # Render as surface
-            temp_surf = p.font.Font(None, txt_size).render(debug, True, p.Color('white'))
-
+            if pass_dict[key] == False:
+                temp_y += txt_size + 5
+                debug = '- ' + f'{key}'
+                temp_surf = p.font.Font(None, txt_size).render(debug, True, p.Color('white'))
             # Blit text to screen
-            screen.blit(temp_surf, (temp_x, temp_y))
+                screen.blit(temp_surf, (temp_x, temp_y))
+            elif pass_dict[key] == True: 
+                fCounter-=1
+
+            # If password has upper, lower, number, and letter
+            if fCounter == 0:
+                Hide = tb(p.Rect(20,50, 500, 25), 0, 'black', '', unifont, 23, 'black')
+                Hide.drawText(screen)
+                temp_y += txt_size + 5
+                debug = 'Your password looks strong :)'
+                temp_surf = p.font.Font(None, txt_size + 5).render(debug, True, p.Color('green'))
+                screen.blit(temp_surf, (temp_x, temp_y))
+                temp_y += txt_size + 5
+                debug = '- Make sure NOT to use your NAME'
+                temp_surf = p.font.Font(None, txt_size).render(debug, True, p.Color('white'))
+                screen.blit(temp_surf, (temp_x, temp_y))
+                temp_y+=txt_size + 5
+                debug ='  and COMMON words for passwords'
+                temp_surf = p.font.Font(None, txt_size).render(debug, True, p.Color('white'))
+                screen.blit(temp_surf, (temp_x, temp_y))
+                fCounter-=1
+
             counter+=1
 
         # draw text boxes on screen        
@@ -358,22 +403,23 @@ def option_two():
     # Loads the image
     image = p.image.load('password_manager.png')
     arrow = p.image.load('arrow.png')
+    output = tb(p.Rect(4,450, max_w + 20, max_h/2), 0, 'white', '', unifont, 23, 'black')
     sha = p.image.load("sha.png")
     pbk = p.image.load("pbk.png")
-    DEFAULT_SHA_SIZE = (392, 200)
-    DEFAULT_PBK_SIZE = (392, 200)
+    DEFAULT_SHA_SIZE = (380, 250)
+    DEFAULT_PBK_SIZE = (380, 250)
     sha = p.transform.scale(sha, DEFAULT_SHA_SIZE)
     pbk = p.transform.scale(pbk, DEFAULT_PBK_SIZE)
-    output = tb(p.Rect(0,600, max_w + 20, max_h/2), 0, 'black', '', unifont, 23, 'white')
 
     # Main activity
     running = True
     while running:
         # Fills the screen with grey color
         screen.fill("white")
-        backgroundTop = p.draw.rect(screen, 'blue', p.Rect(0, 0, max_w, max_h),  4, 3)
+        #backgroundTop = p.draw.rect(screen, 'blue', p.Rect(0, 0, max_w, max_h),  4, 3)
         masterPasswordBorder = p.draw.rect(screen, 'blue', p.Rect(18, 131, 312, 33),  2, 4)
         passwordBorder = p.draw.rect(screen, 'blue', p.Rect(495, 122, 248, 58),  2, 4) 
+        
 
 
 
@@ -397,13 +443,16 @@ def option_two():
         #Encrypted Password
         EncryptedPassword = tb(p.Rect(500,128,240,50),0, 'white', 'PASSWORDS', None, 50,'red')
 
+        PageTitle  = tb(p.Rect(40, 50, max_w - 80, 60), 0, 'white', 'HOW DOES A PASSWORD MANAGER WORK?', None, 47, 'red')
         
-        
-
+        website_link = tb(p.Rect(5, 570, max_w - 80, 22), 0, 'white', 'CLICK HERE TO LEARN MORE ABOUT PASSWORD MANAGER ENCRYPTION (AES)', None, 20, 'red') 
+        PageTitle.drawText(screen)
         screen.blit(masterPassword,masterRect)
         screen.blit(arrow, (340,108))
-        screen.blit(sha, (4, 280))
-        screen.blit(pbk, (400, 280))
+        output.drawText(screen)    
+        screen.blit(sha, (-1, 200))
+        screen.blit(pbk, (400, 200))
+        website_link.drawText(screen)
         # screen.blit(passwordVault,passwordRect)
         EncryptedPassword.drawText(screen)
         
@@ -423,9 +472,10 @@ def option_two():
                     output.setText('[MASTER KEY]                                                                                                                >used to accessed the passwords stored in the password vault                              >only have to memorize one MASTER PASSWORD to access all passwords')
                 if EncryptedPassword.getBox().collidepoint(e.pos):
                     output.setText('[PASSWORD MANAGER]                                                                                               >passwords are stored in encrypted vault                                                                  >most password manager generates random secure password to avoid                  repeated password                                                                                                     >autofill feature means no need to memorize all the different passwords')
+                if website_link.getBox().collidepoint(e.pos):
+                    webbrowser.open(r"https://www.n-able.com/blog/aes-256-encryption-algorithm)")
                     
 
-        output.drawText(screen)    
         # Update the screen
         p.display.flip() 
 
@@ -454,16 +504,16 @@ def check_pass(password: str) -> dict:
         'Total Time': None,
 
         # Password has uppercase letters
-        'Has Upper Case': None,
+        'Upper Case': None,
 
         # Password has lowercase letters
-        'Has Lower Case': None,
+        'Lower Case': None,
 
         # Password contains one or more numbers
-        'Has Number': None,
+        'Number': None,
 
         # Password contains one or more symbols
-        'Has Symbol': None,
+        'Symbol': None,
 
         # The 'strength' score of your password
         'strength': None
@@ -511,7 +561,7 @@ def check_pass(password: str) -> dict:
     # trunc shortens integer
     total = round(end - start, 7)
 
-    my_dict['Total Time'] = str(total)
+    my_dict['Total Time'] = str(total) + ' s'
 
     strength = 0
     # Check the strength of the password
@@ -541,11 +591,13 @@ def check_pass(password: str) -> dict:
     strength = strength * len(password)
 
     # Assign values to the dictionary
-    my_dict['Has Upper Case'] = hasUp
-    my_dict['Has Lower Case'] = hasLow
-    my_dict['Has Number'] = hasNum
-    my_dict['Has Symbol'] = hasSym
+    my_dict['Upper Case'] = hasUp
+    my_dict['Lower Case'] = hasLow
+    my_dict['Number'] = hasNum
+    my_dict['Symbol'] = hasSym
     my_dict['strength'] = strength
+    
+        
 
     return my_dict
 
