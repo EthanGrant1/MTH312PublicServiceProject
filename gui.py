@@ -327,19 +327,17 @@ def option_one():
         counter = 0
         debug = 'Your password needs: '
         temp_surf = p.font.Font(None, txt_size + 5).render(debug, True, p.Color('green'))
-        #counter to check if password fulfills all the requirement
+
+        #counter to check if password fulfills all the requirement (upper, lower, symbol)
         fCounter = 4
 
         # Check the password check dictionary
         for key in pass_dict:
             #blit 'debug' to screen along with the first key in the dictionary
-
             if counter == 0:
                 screen.blit(temp_surf, (temp_x, temp_y))
 
-            # Render each key in a new line
-
-            # Grab the value from the dictionary
+            # Add total time to crack on screen (FORMATTING STUFF)
             if key == 'Total Time':
                 debug = 'How long would it take for BRUTE'
                 temp_surf = p.font.Font(None, 25).render(debug, True, p.Color('red'))
@@ -350,17 +348,18 @@ def option_one():
                 debug = f'{pass_dict[key]}'
                 temp_surf = p.font.Font(None, 25).render(debug, True, p.Color('red'))
                 screen.blit(temp_surf,(500, 125 )) 
-
+            
+            # Blit what the password is missing to the screen
             if pass_dict[key] == False:
                 temp_y += txt_size + 5
                 debug = '- ' + f'{key}'
                 temp_surf = p.font.Font(None, txt_size).render(debug, True, p.Color('white'))
-            # Blit text to screen
                 screen.blit(temp_surf, (temp_x, temp_y))
+            #Tracking if password fulfills all the requirement
             elif pass_dict[key] == True: 
                 fCounter-=1
 
-            # If password has upper, lower, number, and letter
+            # If password has upper, lower, number, and letter (FORMATING.....)
             if fCounter == 0:
                 Hide = tb(p.Rect(20,50, 500, 25), 0, 'black', '', unifont, 23, 'black')
                 Hide.drawText(screen)
@@ -401,7 +400,6 @@ def option_one():
 
 def option_two():
     # Loads the image
-    image = p.image.load('password_manager.png')
     arrow = p.image.load('arrow.png')
     output = tb(p.Rect(4,450, max_w + 20, max_h/2), 0, 'white', '', unifont, 23, 'black')
     sha = p.image.load("sha.png")
@@ -419,8 +417,6 @@ def option_two():
         #backgroundTop = p.draw.rect(screen, 'blue', p.Rect(0, 0, max_w, max_h),  4, 3)
         masterPasswordBorder = p.draw.rect(screen, 'blue', p.Rect(18, 131, 312, 33),  2, 4)
         passwordBorder = p.draw.rect(screen, 'blue', p.Rect(495, 122, 248, 58),  2, 4) 
-        
-
 
 
         # Back Button
@@ -445,7 +441,7 @@ def option_two():
 
         PageTitle  = tb(p.Rect(40, 50, max_w - 80, 60), 0, 'white', 'HOW DOES A PASSWORD MANAGER WORK?', None, 47, 'red')
         
-        website_link = tb(p.Rect(5, 570, max_w - 80, 22), 0, 'white', 'CLICK HERE TO LEARN MORE ABOUT PASSWORD MANAGER ENCRYPTION (AES)', None, 20, 'red') 
+        website_link = tb(p.Rect(5, 570, max_w - 80, 22), 0, 'white', 'CLICK HERE TO LEARN MORE ABOUT PASSWORD MANAGER ENCRYPTION (AES 256)', None, 20, 'red') 
         PageTitle.drawText(screen)
         screen.blit(masterPassword,masterRect)
         screen.blit(arrow, (340,108))
