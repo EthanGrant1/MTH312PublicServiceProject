@@ -10,14 +10,14 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.fernet import Fernet
 import base64
-from os import fchdir, urandom as r
+from os import urandom as r
 
 #import math library
 import math
 
 import webbrowser
 
-from sqlalchemy import true
+#from sqlalchemy import true
 
 # System level module for program args, i/o, exits, etc.
 # import sys as s
